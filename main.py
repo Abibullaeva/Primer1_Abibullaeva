@@ -187,18 +187,19 @@ plt.figure()
 plt.bar(tfame2_am['Y'], tfame2_am['Am_Ist_2'])
 plt.savefig('chart12.png') #амортизация по годам (уменьшаемый остаток)'''
 
-#ЛАБОРАТОРНАЯ РАБОТА №3
-# 1 Задание - вместе с Ватутиой С.А.
-import os
-my_secret = os.environ['secret1']
-print(my_secret)
-my_secret = os.environ['secret2']
-print(my_secret)
-my_secret = os.environ['secret3']
-print(my_secret)
-
-# # 2 задание (Вариант 6) - вместе с Максимовой Е.А.
-# # Контейнер расчета
+# print("ЛАБОРАТОРНАЯ РАБОТА №3")
+# print("1 Задание - вместе с Ватутиой С.А.")
+# # 1 Задание - вместе с Ватутиой С.А.
+# import os
+# my_secret = os.environ['secret1']
+# print(my_secret)
+# my_secret = os.environ['secret2']
+# print(my_secret)
+# my_secret = os.environ['secret3']
+# print(my_secret)
+# print("2 Задание - вместе с Максимовой Е.А.")
+# 2 задание (Вариант 6) - вместе с Максимовой Е.А.
+# Контейнер расчета
 # from sympy import*
 # k, T, C, L = symbols('k T C L')
 
@@ -275,9 +276,10 @@ print(my_secret)
 # plt.savefig('chart18.png') #амортизация по годам (уменьшаемый остаток)
 # plt.figure()
 
-# # изменения нового варианта внесены корректно, вывод результатов корректный/Максимова Е
-# # оценка внесенных изменений: 5 баллов
+# изменения нового варианта внесены корректно, вывод результатов корректный/Максимова Е
+# оценка внесенных изменений: 5 баллов
 
+# print("4 Задание - вместе с Третьяковым М.В.")
 # # 4 задание - вместе с Третьяковым М.В.
 # # Контейнер расчета
 # from sympy import*
@@ -356,6 +358,7 @@ print(my_secret)
 # plt.figure()
 # # Оценка ответов на вопросы - 5 баллов
 
+print("7 Задание - изменения в соотвествии с Вариантом 7")
 # Контейнер расчета
 from sympy import*
 k, T, C, L = symbols('k T C L')
