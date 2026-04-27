@@ -40,8 +40,8 @@ print("-" * 40)
 # Параметры из ТЗ
 ABONENTS = 16000                    # абонентская база
 CALLS_PER_DAY_PER_USER = 4          # звонков в день на абонента
-SMS_PER_DAY_PER_USER = 2            # SMS в день на абонента
-STORAGE_LIMIT_GB = 500              # лимит хранилища (ГБ)
+SMS_PER_DAY_PER_USER = 2           # SMS в день на абонента
+STORAGE_LIMIT_GB = 500             # лимит хранилища (ГБ)
 CRITICAL_FREE_PERCENT = 10          # критический порог свободного места (%)
 RATE_LIMIT_PER_SEC = 2000           # порог скорости потока (записей/сек)
 BUFFER_CAPACITY = 10000            # емкость буфера (записей)
@@ -305,6 +305,31 @@ ax4.set_title('Распределение обработки запросов\n(
 plt.tight_layout()
 plt.savefig('traffic_distribution.png', dpi=150, bbox_inches='tight')
 print("Дополнительный график сохранен: traffic_distribution.png")
+
+
+# ПРОСТЕЙШАЯ ВИЗУАЛИЗАЦИЯ: Общий трафик по часам
+print("\n7. ВИЗУАЛИЗАЦИЯ ОБЩЕГО ТРАФИКА ПО ЧАСАМ")
+print("-" * 40)
+
+fig5, ax5 = plt.subplots(figsize=(12, 5))
+
+hours_plot = list(range(1, 25))
+
+# Простой линейный график входящего трафика
+ax5.plot(hours_plot, hourly_load, 'b-', linewidth=2, marker='o', markersize=4)
+ax5.fill_between(hours_plot, hourly_load, alpha=0.3, color='blue')
+ax5.axhline(y=RATE_LIMIT_PER_SEC, color='red', linestyle='--', linewidth=2, label=f'Порог ({RATE_LIMIT_PER_SEC} зап/сек)')
+
+ax5.set_xlabel('Часы', fontsize=11)
+ax5.set_ylabel('Количество записей в секунду', fontsize=11)
+ax5.set_title('Общий трафик по часам (звонки + SMS)', fontsize=13)
+ax5.legend(loc='upper right')
+ax5.grid(True, alpha=0.3)
+ax5.set_xlim(0, 24)
+
+plt.tight_layout()
+plt.savefig('hourly_traffic.png', dpi=150, bbox_inches='tight')
+print("График 5 (общий трафик по часам) сохранен: hourly_traffic.png")
 
 # =============================================
 # 7. ВЫВОДЫ ПО РАБОТЕ КОНТЕЙНЕРА
