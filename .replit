@@ -1,4 +1,4 @@
-entrypoint = "main.py"
+entrypoint = "individual.py"
 modules = ["python-3.11"]
 
 [nix]

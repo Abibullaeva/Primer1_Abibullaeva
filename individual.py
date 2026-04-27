@@ -180,7 +180,135 @@ table_daily = list(zip(days, incoming, blocked, passed, efficiency))
 df_daily = pd.DataFrame(table_daily, columns=['День', 'Входящие', 'Заблокировано', 'Пропущено', 'Эффективность %'])
 print(df_daily.to_string(index=False))
 
+# =============================================
+# 5. ВИЗУАЛИЗАЦИЯ РЕЗУЛЬТАТОВ (3 ГРАФИКА)
+# =============================================
 
+print("\n5. ВИЗУАЛИЗАЦИЯ РЕЗУЛЬТАТОВ")
+print("-" * 40)
+
+plt.rcParams['font.size'] = 10
+plt.rcParams['axes.titlesize'] = 12
+
+# ГРАФИК 1: Только динамика заполнения буфера (линейный график)
+fig1, ax1 = plt.subplots(figsize=(12, 6))
+
+time_points = list(range(1, 25))
+
+# Заполнение буфера (в процентах от максимальной емкости)
+buffer_percent = [min(100, (b / BUFFER_CAPACITY) * 100) for b in buffer_usage]
+
+ax1.plot(time_points, buffer_percent, 'b-o', linewidth=2, markersize=6, label='Заполнение буфера')
+ax1.axhline(y=90, color='red', linestyle='--', linewidth=2, label='Порог алерта (90%)')
+ax1.axhline(y=50, color='orange', linestyle='--', linewidth=1.5, label='Внимание (50%)')
+
+ax1.set_xlabel('Время (часы)', fontsize=11)
+ax1.set_ylabel('Заполнение буфера (%)', fontsize=11)
+ax1.set_title('Динамика заполнения буфера контейнера безопасности\n(оператор связи "Гартел")', fontsize=13)
+ax1.legend(loc='upper left')
+ax1.grid(True, alpha=0.3)
+ax1.set_xlim(0, 24)
+ax1.set_ylim(0, 110)
+
+for i, (hour, percent) in enumerate(zip(time_points, buffer_percent)):
+    if percent > 90:
+        ax1.annotate(f'{percent:.0f}%', xy=(hour, percent), xytext=(hour, percent+5),
+                    fontsize=8, ha='center', color='red')
+
+plt.tight_layout()
+plt.savefig('buffer_dynamics.png', dpi=150, bbox_inches='tight')
+print("График 1 сохранен: buffer_dynamics.png")
+
+
+# ГРАФИК 2: Скорость потока vs порог срабатывания
+fig2, ax2 = plt.subplots(figsize=(12, 6))
+
+hours_plot = list(range(1, 25))
+loads_plot = hourly_load
+threshold_plot = [RATE_LIMIT_PER_SEC] * 24
+
+colors = ['red' if l > RATE_LIMIT_PER_SEC else 'green' for l in loads_plot]
+
+ax2.bar(hours_plot, loads_plot, color=colors, alpha=0.7, label='Входящий поток')
+ax2.plot(hours_plot, threshold_plot, 'b--', linewidth=2, label=f'Порог ({RATE_LIMIT_PER_SEC} зап/сек)', marker='s', markersize=4)
+
+for i, load in enumerate(loads_plot):
+    if load > RATE_LIMIT_PER_SEC:
+        ax2.fill_between([i+1, i+1.8], RATE_LIMIT_PER_SEC, load, alpha=0.3, color='red')
+
+ax2.set_xlabel('Время (часы)', fontsize=11)
+ax2.set_ylabel('Скорость потока (записей/сек)', fontsize=11)
+ax2.set_title('Мониторинг скорости потока данных\n(активация буферизации при превышении порога)', fontsize=13)
+ax2.legend(loc='upper right')
+ax2.grid(True, alpha=0.3)
+
+ax2.annotate('Активация буфера', xy=(14, 2350), xytext=(15, 3000),
+             arrowprops=dict(arrowstyle='->', color='red', lw=1.5),
+             fontsize=10, color='red')
+
+plt.tight_layout()
+plt.savefig('flow_rate_monitoring.png', dpi=150, bbox_inches='tight')
+print("График 2 сохранен: flow_rate_monitoring.png")
+
+# ГРАФИК 3: Эффективность защиты (столбчатая диаграмма)
+fig3, ax3 = plt.subplots(figsize=(10, 6))
+
+days_plot = days
+direct_write = [min(x, RATE_LIMIT_PER_SEC) for x in incoming]
+buffered = [max(0, x - RATE_LIMIT_PER_SEC) for x in incoming]
+
+x_pos = np.arange(len(days_plot))
+width = 0.35
+
+bars1 = ax3.bar(x_pos - width/2, direct_write, width, label='Прямая запись в хранилище', color='green', alpha=0.7)
+bars2 = ax3.bar(x_pos + width/2, buffered, width, label='Отправлено в буфер', color='orange', alpha=0.7)
+
+for i, eff in enumerate(efficiency):
+    ax3.text(i, incoming[i] + 50, f'{eff:.1f}%', ha='center', fontsize=9, fontweight='bold')
+
+ax3.set_xlabel('День недели', fontsize=11)
+ax3.set_ylabel('Количество записей', fontsize=11)
+ax3.set_title('Эффективность фильтрации по дням недели\n(блокировка избыточной нагрузки)', fontsize=13)
+ax3.set_xticks(x_pos)
+ax3.set_xticklabels(days_plot)
+ax3.legend(loc='upper left')
+ax3.grid(True, alpha=0.3, axis='y')
+
+plt.tight_layout()
+plt.savefig('filtering_efficiency.png', dpi=150, bbox_inches='tight')
+print("График 3 сохранен: filtering_efficiency.png")
+
+# =============================================
+# 6. ДОПОЛНИТЕЛЬНАЯ ВИЗУАЛИЗАЦИЯ (КРУГОВАЯ ДИАГРАММА)
+# =============================================
+
+print("\n6. ДОПОЛНИТЕЛЬНАЯ ВИЗУАЛИЗАЦИЯ")
+print("-" * 40)
+
+fig4, ax4 = plt.subplots(figsize=(8, 8))
+
+# Статистика обработки запросов за неделю
+total_incoming = sum(incoming)
+total_direct = sum(direct_write)
+total_buffered = sum(buffered)
+
+labels = ['Прямая запись', 'Буферизовано', 'Потеряно (авария)']
+sizes = [total_direct, total_buffered, total_incoming * 0.01]  # 1% потерь при аварии
+colors = ['#4CAF50', '#FF9800', '#F44336']
+explode = (0.05, 0.1, 0.15)
+
+ax4.pie(sizes, labels=labels, colors=colors, explode=explode,
+        autopct='%1.1f%%', shadow=True, startangle=90,
+        wedgeprops={'lw': 1, 'ls': '-', 'edgecolor': 'k'})
+ax4.set_title('Распределение обработки запросов\n(Контейнер безопасности)', fontsize=13, fontweight='bold')
+
+plt.tight_layout()
+plt.savefig('traffic_distribution.png', dpi=150, bbox_inches='tight')
+print("Дополнительный график сохранен: traffic_distribution.png")
+
+# =============================================
+# 7. ВЫВОДЫ ПО РАБОТЕ КОНТЕЙНЕРА
+# =============================================
 
 print("\n" + "=" * 60)
 print("ВЫВОДЫ ПО РАБОТЕ КОНТЕЙНЕРА БЕЗОПАСНОСТИ")
