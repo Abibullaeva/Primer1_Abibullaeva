@@ -39,11 +39,11 @@ print("-" * 40)
 
 # Параметры из ТЗ
 ABONENTS = 16000                    # абонентская база
-CALLS_PER_DAY_PER_USER = 4          # звонков в день на абонента
-SMS_PER_DAY_PER_USER = 2           # SMS в день на абонента
-STORAGE_LIMIT_GB = 500             # лимит хранилища (ГБ)
-CRITICAL_FREE_PERCENT = 10          # критический порог свободного места (%)
-RATE_LIMIT_PER_SEC = 2000           # порог скорости потока (записей/сек)
+CALLS_PER_DAY_PER_USER = 500          # звонков в день на абонента
+SMS_PER_DAY_PER_USER = 100         # SMS в день на абонента
+STORAGE_LIMIT_GB = 100             # лимит хранилища (ГБ)
+CRITICAL_FREE_PERCENT = 5          # критический порог свободного места (%)
+RATE_LIMIT_PER_SEC = 100           # порог скорости потока (записей/сек)
 BUFFER_CAPACITY = 10000            # емкость буфера (записей)
 
 # Символьные переменные для расчетов
